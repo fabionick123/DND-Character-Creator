@@ -34,6 +34,7 @@ nombre_entry.grid(column=0, row=1)
 
 def set_nombre():
     ##Lo mismo pero con el nombre
+    global nombre
     print(nombre_entry.get())
     nombre = nombre_entry.get()
     print(nombre)
@@ -49,12 +50,12 @@ clase_combobox.grid(column=0, row=3)
 
 def set_clase(): ##funcion a la que llamar al pulsar el botón
     ##Recoger clase escogida en Tkinter y meterla en la variable clase
+    global clase, info_clase
     print(clase_combobox.get())
     clase = clase_combobox.get()
     info_clase = requests.get(BASE_URL + "classes/" + clase.lower()).json()
     print(info_clase)
-    # mostrar_competencias()
-    pass
+    mostrar_competencias()
 
 clase_verificar = ttk.Button(frm, text="Verificar Clase", command=set_clase)
 clase_verificar.grid(column=1, row=3)
