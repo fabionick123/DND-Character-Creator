@@ -14,6 +14,24 @@ competencias_herramientas = []
 
 # Hay que cambiar cosas para que se manejen
 # los inputs en Tkinter
+
+opciones_clases =[] ##Usarlo en el campo de opciones de clase y poner un botón de confirmar al lado.
+opciones = requests.get(BASE_URL + "classes/").json()["results"]
+print("Clases disponibles:\n")
+for opcion in opciones:
+    opciones_clases.append(opcion["name"])
+
+def set_clase(): ##funcion a la que llamar al pulsar el botón
+    ##Recoger clase escogida en Tkinter y meterla en la variable clase
+    pass
+
+def set_nombre():
+    ##Lo mismo pero con el nombre
+    pass
+
+
+
+'''ENCIMA LO QUE SE USA PARA TKINTER'''
 def elegir_clase():
     clase_valida = False
     info_clase = None
@@ -35,10 +53,14 @@ def elegir_clase():
 
 def elegir_competencias(info):
     competencias_posibles = info["proficiency_choices"]
+    competencias_posibles_nombres = []
+
     for competencia in competencias_posibles:
         print(competencia["desc"] + "\n")
+        competencias_posibles_nombres.clear()
         for skill in competencia["from"]["options"]:
             print(skill["item"]["name"])
+            competencias_posibles_nombres.append(skill["item"]["name"])
         for i in range(competencia["choose"]): ##Número de competencias que tiene que elegir
             competencia_valida = False
             competencia_elegida = input(f"Introduzca competencia #{i + 1}:\n>>> ")
@@ -60,4 +82,4 @@ def recoger_info_clase(info):
     equipamiento_de_comienzo = info["starting_equipment"] ## {"equipment": {index, name, url}}
 
 
-elegir_clase()
+elegir_competencias(elegir_clase())
