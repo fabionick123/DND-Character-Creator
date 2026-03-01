@@ -1,11 +1,22 @@
 import json
 from stat import FILE_ATTRIBUTE_ARCHIVE
 
+from tkinter import *
+from tkinter import ttk
+from tkinter.ttk import Combobox
+
 import requests
 
 '''!!! No vamos a meter ni multiclases ni subclases !!!'''
 
+root = Tk()
+frm = ttk.Frame(root, padding=30)
+frm.grid()
+
 BASE_URL = "https://www.dnd5eapi.co/api/2014/"
+
+root.title("DnD")
+root.geometry("800x500")
 
 nombre = None
 clase = None
@@ -17,16 +28,36 @@ competencias_herramientas = []
 # los inputs en Tkinter
 
 opciones_clases =[] ##Usarlo en el campo de opciones de clase para que aparezcan en un menú desplegable y poner un botón de confirmar al lado.
+ttk.Label(frm, text="Introduce nombre:").grid(column=0, row=0)
+nombre_entry = ttk.Entry(frm, width=30)
+nombre_entry.grid(column=0, row=1)
+
+def set_nombre():
+    ##Lo mismo pero con el nombre
+    print(nombre_entry.get())
+    nombre = nombre_entry.get()
+    print(nombre)
+
+opciones_clases =[] ##Usarlo en el campo de opciones de clase y poner un botón de confirmar al lado.
 opciones = requests.get(BASE_URL + "classes/").json()["results"]
 print("Clases disponibles:\n")
 for opcion in opciones:
     opciones_clases.append(opcion["name"])
 
+clase_combobox=Combobox(frm, values=opciones_clases, state="readonly")
+clase_combobox.grid(column=0, row=3)
+
 def set_clase(): ##funcion a la que llamar al pulsar el botón
     ##Recoger clase escogida en Tkinter y meterla en la variable clase
-    info_clase = requests.get(BASE_URL + "classes/" + clase).json()
-    mostrar_competencias()
+    print(clase_combobox.get())
+    clase = clase_combobox.get()
+    info_clase = requests.get(BASE_URL + "classes/" + clase.lower()).json()
+    print(info_clase)
+    # mostrar_competencias()
     pass
+
+clase_verificar = ttk.Button(frm, text="Verificar Clase", command=set_clase)
+clase_verificar.grid(column=1, row=3)
 
 def mostrar_competencias():
     competencias_posibles = info_clase["proficiency_choices"]
@@ -36,17 +67,8 @@ def mostrar_competencias():
             competencias_posibles_nombres.append(skill["item"]["name"])
         for i in range(competencia["choose"]):
             ##Pintar un ttk.combobox con competencias_posibles_nombres
-
-
-
-
-
-
-
-def set_nombre():
-    ##Lo mismo pero con el nombre
-    pass
-
+            boton_competencia = ttk.Combobox(frm, values=competencias_posibles_nombres, state="readonly")
+            boton_competencia.grid(column=0, row=4 + i)
 
 
 '''ENCIMA LO QUE SE USA PARA TKINTER'''
@@ -82,4 +104,4 @@ def recoger_info_clase(info):
     equipamiento_de_comienzo = info["starting_equipment"] ## {"equipment": {index, name, url}}
 
 
-elegir_competencias(elegir_clase())
+root.mainloop()
