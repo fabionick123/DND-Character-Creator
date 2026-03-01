@@ -20,12 +20,14 @@ root.geometry("800x500")
 
 nombre = None
 clase = None
+info_clase = None
 competencias_habilidades = []
 competencias_herramientas = []
 
 # Hay que cambiar cosas para que se manejen
 # los inputs en Tkinter
 
+opciones_clases =[] ##Usarlo en el campo de opciones de clase para que aparezcan en un menú desplegable y poner un botón de confirmar al lado.
 ttk.Label(frm, text="Introduce nombre:").grid(column=0, row=0)
 nombre_entry = ttk.Entry(frm, width=30)
 nombre_entry.grid(column=0, row=1)
@@ -41,36 +43,19 @@ print("Clases disponibles:\n")
 for opcion in opciones:
     opciones_clases.append(opcion["name"])
 
+clase_combobox=Combobox(frm, values=opciones_clases, state="readonly")
+clase_combobox.grid(column=0, row=3)
+
 def set_clase(): ##funcion a la que llamar al pulsar el botón
     ##Recoger clase escogida en Tkinter y meterla en la variable clase
     print(clase_combobox.get())
     clase = clase_combobox.get()
-
-clase_combobox=Combobox(frm, values=opciones_clases, state="readonly")
-clase_combobox.grid(column=0, row=3)
+    info_clase = requests.get(BASE_URL + "classes/" + clase.lower() + "/").json()
 
 clase_verificar = ttk.Button(frm, text="Verificar Clase", command=set_clase)
 clase_verificar.grid(column=1, row=3)
 
 '''ENCIMA LO QUE SE USA PARA TKINTER'''
-def elegir_clase():
-    clase_valida = False
-    info_clase = None
-    clases = requests.get(BASE_URL + "classes/").json()["results"]
-    print("Clases disponibles:\n")
-    for clase in clases:
-        print(clase["name"])
-
-    clase_elegida = input("Introduzca clase:\n>>> ").lower()
-
-    while not clase_valida:
-        try:
-            info_clase = requests.get(BASE_URL + "classes/" + clase_elegida).json()
-            clase_valida = True
-        except requests.exceptions.RequestException as e:
-            print("Clase inválida. Introdúzcala de nuevo:")
-            clase_elegida = input(">>> ").lower()
-    return info_clase
 
 def elegir_competencias(info):
     competencias_posibles = info["proficiency_choices"]
