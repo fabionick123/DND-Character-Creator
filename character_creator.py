@@ -9,13 +9,14 @@ BASE_URL = "https://www.dnd5eapi.co/api/2014/"
 
 nombre = None
 clase = None
+info_clase = None
 competencias_habilidades = []
 competencias_herramientas = []
 
 # Hay que cambiar cosas para que se manejen
 # los inputs en Tkinter
 
-opciones_clases =[] ##Usarlo en el campo de opciones de clase y poner un botón de confirmar al lado.
+opciones_clases =[] ##Usarlo en el campo de opciones de clase para que aparezcan en un menú desplegable y poner un botón de confirmar al lado.
 opciones = requests.get(BASE_URL + "classes/").json()["results"]
 print("Clases disponibles:\n")
 for opcion in opciones:
@@ -23,7 +24,11 @@ for opcion in opciones:
 
 def set_clase(): ##funcion a la que llamar al pulsar el botón
     ##Recoger clase escogida en Tkinter y meterla en la variable clase
+    info_clase = requests.get(BASE_URL + "classes/" + clase).json()
+
     pass
+
+
 
 def set_nombre():
     ##Lo mismo pero con el nombre
@@ -32,24 +37,6 @@ def set_nombre():
 
 
 '''ENCIMA LO QUE SE USA PARA TKINTER'''
-def elegir_clase():
-    clase_valida = False
-    info_clase = None
-    clases = requests.get(BASE_URL + "classes/").json()["results"]
-    print("Clases disponibles:\n")
-    for clase in clases:
-        print(clase["name"])
-
-    clase_elegida = input("Introduzca clase:\n>>> ").lower()
-
-    while not clase_valida:
-        try:
-            info_clase = requests.get(BASE_URL + "classes/" + clase_elegida).json()
-            clase_valida = True
-        except requests.exceptions.RequestException as e:
-            print("Clase inválida. Introdúzcala de nuevo:")
-            clase_elegida = input(">>> ").lower()
-    return info_clase
 
 def elegir_competencias(info):
     competencias_posibles = info["proficiency_choices"]
