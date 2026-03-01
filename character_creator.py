@@ -3,6 +3,7 @@ from stat import FILE_ATTRIBUTE_ARCHIVE
 
 from tkinter import *
 from tkinter import ttk
+from tkinter.ttk import Combobox
 
 import requests
 
@@ -25,6 +26,15 @@ competencias_herramientas = []
 # Hay que cambiar cosas para que se manejen
 # los inputs en Tkinter
 
+ttk.Label(frm, text="Introduce nombre:").grid(column=0, row=0)
+nombre_entry = ttk.Entry(frm, width=30)
+nombre_entry.grid(column=0, row=1)
+
+def set_nombre():
+    ##Lo mismo pero con el nombre
+    print(nombre_entry.get())
+    nombre = nombre_entry.get()
+
 opciones_clases =[] ##Usarlo en el campo de opciones de clase y poner un botón de confirmar al lado.
 opciones = requests.get(BASE_URL + "classes/").json()["results"]
 print("Clases disponibles:\n")
@@ -33,13 +43,14 @@ for opcion in opciones:
 
 def set_clase(): ##funcion a la que llamar al pulsar el botón
     ##Recoger clase escogida en Tkinter y meterla en la variable clase
-    pass
+    print(clase_combobox.get())
+    clase = clase_combobox.get()
 
-def set_nombre():
-    ##Lo mismo pero con el nombre
-    pass
+clase_combobox=Combobox(frm, values=opciones_clases, state="readonly")
+clase_combobox.grid(column=0, row=3)
 
-
+clase_verificar = ttk.Button(frm, text="Verificar Clase", command=set_clase)
+clase_verificar.grid(column=1, row=3)
 
 '''ENCIMA LO QUE SE USA PARA TKINTER'''
 def elegir_clase():
@@ -92,4 +103,4 @@ def recoger_info_clase(info):
     equipamiento_de_comienzo = info["starting_equipment"] ## {"equipment": {index, name, url}}
 
 
-elegir_competencias(elegir_clase())
+root.mainloop()
