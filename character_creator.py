@@ -31,6 +31,7 @@ def set_clase(): ##funcion a la que llamar al pulsar el botón
 
     info_clase = requests.get(BASE_URL + "classes/" + clase.lower()).json()
     mostrar_competencias()
+    mostrar_equipamiento()
     set_proficiencias()
     set_races()
 
@@ -144,13 +145,14 @@ root.geometry(f"{ancho}x{alto}+{x}+{y}")
 
 frm = ttk.Frame(root, padding=30)
 frm.grid()
-contenedor_competencias = ttk.LabelFrame(root, text="Competencias", padding="10")
+frm.place(relx=0.5, rely=0.3, anchor="center")
+contenedor_competencias = ttk.LabelFrame(frm, text="Competencias", padding="10")
 contenedor_competencias.grid(column=0, row=6, columnspan=2, pady=10)
-contenedor_equipamiento = ttk.LabelFrame(root, text="Equipamiento Inicial", padding="10")
+contenedor_equipamiento = ttk.LabelFrame(frm, text="Equipamiento Inicial", padding="10")
 contenedor_equipamiento.grid(column=0, row=4, padx=10, pady=10)
-contenedor_stats = ttk.LabelFrame(root, text="Stats", padding="10")
+contenedor_stats = ttk.LabelFrame(frm, text="Stats", padding="10")
 contenedor_stats.grid(column=0, row=7, pady=10)
-frm.place(relx=0.5, rely=0.2, anchor="center")
+
 
 
 BASE_URL = "https://www.dnd5eapi.co/api/2014/"
