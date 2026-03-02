@@ -10,45 +10,7 @@ from tkinter.ttk import Combobox
 import requests
 
 '''!!! No vamos a meter ni multiclases ni subclases !!!'''
-
-<<<<<<< master
-root = Tk()
-frm = ttk.Frame(root, padding=30)
-frm.place(relx=0.5, rely=0.2, anchor="center")
-contenedor_competencias = ttk.Frame(frm)
-contenedor_competencias.grid(column=0, row=4, columnspan=2, pady=10)
-
-BASE_URL = "https://www.dnd5eapi.co/api/2014/"
-
-root.title("DnD")
-root.geometry("800x500")
-root.update()
-
-ancho = 800
-alto = 500
-
-x = (root.winfo_screenwidth() // 2) - (ancho // 2)
-y = (root.winfo_screenheight() // 2) - (alto // 2)
-
-root.geometry(f"{ancho}x{alto}+{x}+{y}")
-
-nombre = None
-clase = None
-info_clase = None
-competencias_armas = []
-competencias_habilidades = []
-competencias_herramientas = []
-
-# Hay que cambiar cosas para que se manejen
-# los inputs en Tkinter
-
-opciones_clases =[] ##Usarlo en el campo de opciones de clase para que aparezcan en un menú desplegable y poner un botón de confirmar al lado.
-ttk.Label(frm, text="Introduce nombre:").grid(column=0, row=0)
-nombre_entry = ttk.Entry(frm, width=30)
-nombre_entry.grid(column=0, row=1)
-=======
 """Funciones"""
->>>>>>> master
 
 def set_nombre():
     ##Lo mismo pero con el nombre
@@ -201,20 +163,18 @@ def mostrar_equipamiento():
 
 
 root = Tk()
-frm = ttk.Frame(root, padding=30)
-frm.grid()
-contenedor_competencias = ttk.LabelFrame(root, text="Competencias", padding="10")
-contenedor_competencias.grid(column=0, row=3, columnspan=2, pady=10)
-contenedor_equipamiento = ttk.LabelFrame(root, text="Equipamiento Inicial", padding="10")
-contenedor_equipamiento.grid(column=0, row=4, padx=10, pady=10)
+root.title("DnD")
+ancho = 800
+alto = 500
+x = (root.winfo_screenwidth() // 2) - (ancho // 2)
+y = (root.winfo_screenheight() // 2) - (alto // 2)
+root.geometry(f"{ancho}x{alto}+{x}+{y}")
 
-contenedor_stats = ttk.LabelFrame(root, text="Stats", padding="10")
-contenedor_stats.grid(column=0, row=6, pady=10)
+frm = ttk.Frame(root, padding=30)
+frm.place(relx=0.5, rely=0.2, anchor="center")
+
 
 BASE_URL = "https://www.dnd5eapi.co/api/2014/"
-
-root.title("DnD")
-root.geometry("800x500")
 
 nombre = None
 clase = None
@@ -234,6 +194,15 @@ ttk.Label(frm, text="Introduce nombre:").grid(column=0, row=0)
 nombre_entry = ttk.Entry(frm, width=30)
 nombre_entry.insert(0, "Nombre")
 nombre_entry.grid(column=0, row=1)
+
+contenedor_competencias = ttk.LabelFrame(frm, text="Competencias", padding="10")
+contenedor_competencias.grid(column=0, row=3, columnspan=2, pady=10)
+
+contenedor_equipamiento = ttk.LabelFrame(frm, text="Equipamiento Inicial", padding="10")
+contenedor_equipamiento.grid(column=0, row=4, padx=10, pady=10)
+
+contenedor_stats = ttk.LabelFrame(frm, text="Stats", padding="10")
+contenedor_stats.grid(column=0, row=6, pady=10)
 
 opciones = requests.get(BASE_URL + "classes/").json()["results"]
 print("Clases disponibles:\n")
@@ -282,9 +251,4 @@ ttk.Button(contenedor_stats, text="Generate", command=generate_stats).grid(colum
 '''ENCIMA LO QUE SE USA PARA TKINTER'''
 
 root.update()
-
-x = (root.winfo_screenwidth() // 2) - (800 // 2)
-y = (root.winfo_screenheight() // 2) - (500 // 2)
-
-root.geometry(f"800x500+{x}+{y}")
 root.mainloop()
