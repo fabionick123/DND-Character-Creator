@@ -1,4 +1,5 @@
 import json
+import random as r
 from asyncio.windows_events import NULL
 from stat import FILE_ATTRIBUTE_ARCHIVE
 
@@ -7,7 +8,6 @@ from tkinter import ttk
 from tkinter.ttk import Combobox
 
 import requests
-from django.template.defaultfilters import default
 
 '''!!! No vamos a meter ni multiclases ni subclases !!!'''
 
@@ -27,6 +27,7 @@ root.geometry("800x500")
 nombre = None
 clase = None
 info_clase = None
+competencias_armas = []
 competencias_habilidades = []
 competencias_herramientas = []
 
@@ -52,6 +53,16 @@ print("Clases disponibles:\n")
 for opcion in opciones:
     opciones_clases.append(opcion["name"])
 
+def set_proficiencias(): ##función que recoge las  proficiencias de cada clase.
+    global clase,competencias_armas
+    clase = clase_combobox.get()
+
+    competencias = []
+    competencias_armas = requests.get(BASE_URL + "classes/monk").json()["proficiencies"]
+    for competencia in competencias_armas:
+        competencias.append(competencia["name"])
+    print(competencias)
+
 ttk.Label(frm, text="Elige clase:").grid(column=0, row=2, pady=(15, 0))
 clase_combobox=Combobox(frm, values=opciones_clases, state="readonly")
 clase_combobox.current(0)
@@ -64,6 +75,7 @@ def set_clase(): ##funcion a la que llamar al pulsar el botón
 
     info_clase = requests.get(BASE_URL + "classes/" + clase.lower()).json()
     mostrar_competencias()
+    set_proficiencias()
 
 clase_verificar = ttk.Button(frm, text="Verificar Clase", command=set_clase)
 clase_verificar.grid(column=1, row=3)
@@ -93,6 +105,26 @@ def mostrar_competencias():
             combo.grid(column=0, row=fila_interna, pady=2)
             fila_interna += 1
 
+def generate_stats():
+    stats_tipos = [intelligence, strength, dexterity, wisdom, constitution, charisma]
+    minimo_requerido = False
+    while not minimo_requerido:
+        sum_stats = 0
+        stats = []
+        for i in range(6):
+            stat = r.randint(3, 18)
+            stats.append(stat)
+            sum_stats += stat
+        if sum_stats >= 72:
+            minimo_requerido = True
+
+    for i in range(len(stats_tipos)):
+        stats_tipos[i].config(state="normal")
+        stats_tipos[i].delete(0, END)
+        stats_tipos[i].insert(0, str(stats[i]))
+        stats_tipos[i].config(state="readonly")
+    print(f"Suma total conseguida: {sum_stats}")
+
 contenedor_stats.config(cursor="target")
 
 ttk.Label(contenedor_stats, text="INT", width=5).grid(column=1, row=3, pady=3)
@@ -119,8 +151,7 @@ ttk.Label(contenedor_stats, text="CHA", width=5).grid(column=6, row=3, pady=3)
 charisma = ttk.Entry(contenedor_stats, width=5)
 charisma.grid(column=6, row=4, padx=3)
 
-ttk.Button(contenedor_stats, text="Generate").grid(column=7, row=4, padx=5, pady=5)
-
+ttk.Button(contenedor_stats, text="Generate", command=generate_stats).grid(column=7, row=4, padx=5, pady=5)
 
 
 '''ENCIMA LO QUE SE USA PARA TKINTER'''
