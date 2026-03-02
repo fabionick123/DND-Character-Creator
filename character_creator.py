@@ -28,12 +28,6 @@ def set_races():
     mostrar_stats()
     mostrar_info_raza()
 
-def mostrar_info_raza():
-    for widget in contenedor_info_raza.winfo_children():
-        widget.destroy()
-    info_raza = requests.get(BASE_URL + "races/" + raza.lower()).json()
-    ttk.Label(contenedor_info_raza, text="Velocidad: " + str(info_raza["speed"])).grid(column=0, row=0, pady=5, sticky="w")
-
 def set_clase():
     global clase, info_clase
     clase = clase_combobox.get()
@@ -55,30 +49,11 @@ def set_proficiencias():
         competencias.pop()
     print(competencias)
 
-def generate_stats(tipos):
-    global stats, sum_stats
-    minimo_requerido = False
-    while not minimo_requerido:
-        sum_stats = 0
-        stats = []
-        for i in range(6):
-            stat = r.randint(3, 18)
-            stats.append(stat)
-            sum_stats += stat
-        if sum_stats >= 72:
-            minimo_requerido = True
-
-    for i in range(len(tipos)):
-        tipos[i].config(state="normal")
-        tipos[i].delete(0, END)
-        tipos[i].insert(0, str(stats[i]))
-        tipos[i].config(state="readonly")
-    print(f"Suma total conseguida: {sum_stats}")
-
-def mostrar_stats():
-
-    contenedor_stats = ttk.LabelFrame(frm, text="Stats", padding="10")
-    contenedor_stats.grid(column=0, row=8, columnspan=2, pady=10)
+def mostrar_info_raza():
+    global tipos_stats
+    for widget in contenedor_info_raza.winfo_children():
+        widget.destroy()
+    info_raza = requests.get(BASE_URL + "races/" + raza.lower()).json()
 
     intelligence = ttk.Entry(contenedor_stats, width=5, state="readonly", justify="center")
     intelligence.grid(column=0, row=1, padx=3)
@@ -98,11 +73,35 @@ def mostrar_stats():
     charisma = ttk.Entry(contenedor_stats, width=5, state="readonly", justify="center")
     charisma.grid(column=5, row=1, padx=3)
 
+    tipos_stats = [intelligence, strength, dexterity, wisdom, constitution, charisma]
+
+    ttk.Label(contenedor_info_raza, text="Velocidad: " + str(info_raza["speed"])).grid(column=0, row=0, pady=5, sticky="w")
+    generate_stats()
+
+def generate_stats():
+    global tipos_stats
+    minimo_requerido = False
+    while not minimo_requerido:
+        sum_stats = 0
+        stats = []
+        for i in range(6):
+            stat = r.randint(3, 18)
+            stats.append(stat)
+            sum_stats += stat
+        if sum_stats >= 72:
+            minimo_requerido = True
+
+    for i in range(len(tipos_stats)):
+        tipos_stats[i].config(state="normal")
+        tipos_stats[i].delete(0, END)
+        tipos_stats[i].insert(0, str(stats[i]))
+        tipos_stats[i].config(state="readonly")
+    print(f"Suma total conseguida: {sum_stats}")
+
+def mostrar_stats():
     btn_generate = ttk.Button(contenedor_stats, text="Generate", command=generate_stats)
     btn_generate.grid(column=6, row=1, padx=10)
-
-    stats_tipos = [intelligence, strength, dexterity, wisdom, constitution, charisma]
-    generate_stats(stats_tipos)
+    generate_stats()
 
 def mostrar_competencias():
     for widget in contenedor_competencias.winfo_children():
@@ -196,6 +195,7 @@ competencias_herramientas = []
 hit_die = None
 tiradas_de_salvacion = []
 equipamiento_de_comienzo = []
+tipos_stats = []
 
 ttk.Label(frm, text="Introduce nombre:").grid(column=0, row=0,columnspan=2)
 nombre_entry = ttk.Entry(frm, width=30)
@@ -232,5 +232,10 @@ contenedor_equipamiento.grid(column=0, row=7, columnspan=2, pady=10, sticky="nse
 
 contenedor_info_raza = ttk.LabelFrame(frm, text="Info " + raza, padding="10")
 contenedor_info_raza.grid(column=0, row=9,columnspan=2, padx=10, sticky="nsew")
+
+contenedor_stats = ttk.LabelFrame(frm, text="Stats", padding="10")
+contenedor_stats.grid(column=0, row=8, columnspan=2, pady=10)
+
+#tipos_stats = [intelligence, strength, dexterity, wisdom, constitution]
 
 root.mainloop()
