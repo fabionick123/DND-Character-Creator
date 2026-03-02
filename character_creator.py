@@ -17,7 +17,7 @@ frm.grid()
 contenedor_competencias = ttk.Frame(frm)
 contenedor_competencias.grid(column=0, row=4, columnspan=2, pady=10)
 contenedor_stats = ttk.Frame(frm)
-contenedor_stats.grid(column=0, row=5, columnspan=2, pady=10)
+contenedor_stats.grid(column=0, row=5, pady=10)
 
 BASE_URL = "https://www.dnd5eapi.co/api/2014/"
 
