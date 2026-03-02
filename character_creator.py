@@ -32,9 +32,7 @@ def mostrar_info_raza():
     for widget in contenedor_info_raza.winfo_children():
         widget.destroy()
     info_raza = requests.get(BASE_URL + "races/" + raza.lower()).json()
-    ttk.Label(contenedor_info_raza, text="Velocidad: " + str(info_raza["speed"])).grid(column=0, row=0, pady=5)
-
-
+    ttk.Label(contenedor_info_raza, text="Velocidad: " + str(info_raza["speed"])).grid(column=0, row=0, pady=5, sticky="w")
 
 def set_clase():
     global clase, info_clase
@@ -233,6 +231,6 @@ contenedor_equipamiento = ttk.LabelFrame(frm, text="Equipamiento Inicial", paddi
 contenedor_equipamiento.grid(column=0, row=7, columnspan=2, pady=10, sticky="nsew")
 
 contenedor_info_raza = ttk.LabelFrame(frm, text="Info " + raza, padding="10")
-contenedor_info_raza.grid(column=0, row=9, padx=10)
+contenedor_info_raza.grid(column=0, row=9,columnspan=2, padx=10, sticky="nsew")
 
 root.mainloop()
