@@ -6,8 +6,11 @@ import openpyxl
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Combobox
+
+import pygame
 from playsound3 import playsound
 from PIL import Image, ImageTk
+import pygame
 
 import requests
 
@@ -17,9 +20,7 @@ from tkinter.scrolledtext import ScrolledText
 def set_nombre():
     ##Lo mismo pero con el nombre
     global nombre
-    print(nombre_entry.get())
     nombre = nombre_entry.get()
-    print(nombre)
 
 def get_races():
     info_razas = requests.get(BASE_URL + "races").json()["results"]
@@ -218,7 +219,14 @@ def mostrar_equipamiento():
             combo.grid(column=0, row=fila, pady=2)
             fila += 1
 
-
+def mostrar_datos():
+    set_nombre()
+    print(nombre)
+    print(clase)
+    print(raza)
+    print(competencias_habilidades)
+    print(competencias_armas)
+    print(competencias_herramientas)
 
 root = Tk()
 root.title("DnD")
@@ -228,8 +236,11 @@ style = ttk.Style()
 style.theme_use("clam")  # mejor para personalizar
 
 
-musica = playsound("./musica.mp3", block=False)
-
+pygame.init()
+pygame.mixer.init()
+sound = pygame.mixer.Sound("musica.mp3")
+sound.set_volume(0.05)
+sound.play()
 
 main_container = Frame(root)
 main_container.pack(fill='both', expand=True)
@@ -275,7 +286,7 @@ prioridad_stats = {
 }
 nombre_stats = ["INT", "STR", "DEX", "WIS", "CON", "CHA"]
 
-nombre = None
+nombre = ""
 clase = ""
 raza = ""
 info_clase = {}
@@ -333,7 +344,10 @@ backstory = ScrolledText(contenedor_story, width=60, height=10)
 backstory.pack(padx=10, pady=10)
 tipos_stats_nombres = ["INT", "STR", "DEX", "WIS", "CON", "CHA"]
 
+guardar = ttk.Button(frm, text="Guardar personaje", command=mostrar_datos)
+guardar.grid(column=0, row=11, columnspan=2, padx=5, sticky="w")
 # EXCEL
 root_characters = "character.csv"
+nombre_personaje = nombre_entry.get()
 
 root.mainloop()
