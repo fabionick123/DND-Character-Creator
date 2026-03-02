@@ -6,15 +6,17 @@ from tkinter import ttk
 from tkinter.ttk import Combobox
 
 import requests
-from django.template.defaultfilters import default
 
 '''!!! No vamos a meter ni multiclases ni subclases !!!'''
 
 root = Tk()
 frm = ttk.Frame(root, padding=30)
 frm.grid()
-contenedor_competencias = ttk.Frame(frm)
-contenedor_competencias.grid(column=0, row=4, columnspan=2, pady=10)
+contenedor_competencias = ttk.LabelFrame(root, text="Competencias", padding="10")
+contenedor_competencias.grid(column=0, row=3, columnspan=2, pady=10)
+
+contenedor_equipamiento = ttk.LabelFrame(root, text="Equipamiento Inicial", padding="10")
+contenedor_equipamiento.grid(column=0, row=4, padx=10, pady=10)
 
 BASE_URL = "https://www.dnd5eapi.co/api/2014/"
 
@@ -25,8 +27,8 @@ nombre = None
 clase = None
 info_clase = None
 hit_die = None
-tiradas_de_salvacion = None
-equipamiento_de_comienzo = None
+tiradas_de_salvacion = []
+equipamiento_de_comienzo = []
 competencias_armas = []
 competencias_habilidades = []
 # Hay que cambiar cosas para que se manejen
@@ -55,7 +57,7 @@ def set_proficiencias(): ##función que recoge las  proficiencias de cada clase.
     clase = clase_combobox.get()
 
     competencias = []
-    competencias_armas = requests.get(BASE_URL + "classes/monk").json()["proficiencies"]
+    competencias_armas = requests.get(BASE_URL + "classes/" + clase.lower()).json()["proficiencies"]
     for competencia in competencias_armas:
         competencias.append(competencia["name"])
     print(competencias)
@@ -67,13 +69,22 @@ clase_combobox.grid(column=0, row=3, padx=10, pady=20)
 def set_clase(): ##funcion a la que llamar al pulsar el botón
     ##Recoger clase escogida en Tkinter y meterla en la variable clase
     global clase, info_clase, hit_die, tiradas_de_salvacion, equipamiento_de_comienzo
-    hit_die = info_clase["hit_die"]
-    tiradas_de_salvacion = info_clase["saving_throws"] ##Array de json. Cada elemento tiene index, name, url
-    equipamiento_de_comienzo = info_clase["starting_equipment"] ## {"equipment": {index, name, url}}
     clase = clase_combobox.get()
 
     info_clase = requests.get(BASE_URL + "classes/" + clase.lower()).json()
+    hit_die = info_clase["hit_die"]
+    tiradas_de_salvacion_json = info_clase["saving_throws"]
+
+    for tirada in tiradas_de_salvacion_json:
+        tiradas_de_salvacion.append(tirada["name"])
+
+    equipamiento_de_comienzo_json = info_clase["starting_equipment"]
+    for equipamiento in equipamiento_de_comienzo_json:
+        equipamiento_de_comienzo.append((equipamiento["equipment"]["name"], equipamiento["quantity"]))
+    print(equipamiento_de_comienzo)
+
     mostrar_competencias()
+    mostrar_equipamiento()
     set_proficiencias()
 
 clase_verificar = ttk.Button(frm, text="Verificar Clase", command=set_clase)
@@ -102,6 +113,48 @@ def mostrar_competencias():
             combo = ttk.Combobox(contenedor_competencias, values=opciones_limpias, state="readonly", width=50)
             combo.grid(column=0, row=fila_interna, pady=2)
             fila_interna += 1
+
+def get_items_from_category(url_categoria):
+    data = requests.get("https://www.dnd5eapi.co" + url_categoria).json()
+    return [item["name"] for item in data["equipment"]]
+
+
+def mostrar_equipamiento():
+    for widget in contenedor_equipamiento.winfo_children():
+        widget.destroy()
+
+    fila = 0
+    for bloque in info_clase["starting_equipment_options"]:
+        ttk.Label(contenedor_equipamiento, text=bloque["desc"]).grid(column=0, row=fila, pady=(10, 2))
+        fila += 1
+
+        opciones_finales = []
+
+        for opcion_equipamiento in bloque["from"]["options"]:
+            if opcion_equipamiento["option_type"] == "counted_reference":
+                nombre_equipamiento = f"{opcion_equipamiento['count']} {opcion_equipamiento['of']['name']}"
+                opciones_finales.append(nombre_equipamiento)
+
+            elif opcion_equipamiento["option_type"] == "choice":
+                sub_opcion = opcion_equipamiento["choice"]
+
+                if sub_opcion["from"]["option_set_type"] == "equipment_category":
+                    url_opcion = sub_opcion["from"]["equipment_category"]["url"]
+                    lista_items = get_items_from_category(url_opcion)
+                    for item in lista_items:
+                        opciones_finales.append(item)
+
+                elif sub_opcion["from"]["option_set_type"] == "options_array":
+                    for sub_opcion_segunda in sub_opcion["from"]["options"]:
+                        if "item" in sub_opcion_segunda:
+                            opciones_finales.append(sub_opcion_segunda["item"]["name"])
+                        elif "of" in sub_opcion_segunda:
+                            opciones_finales.append(f"{sub_opcion_segunda['count']} {sub_opcion_segunda['of']['name']}")
+
+        for i in range(bloque["choose"]):
+            combo = ttk.Combobox(contenedor_equipamiento, values=opciones_finales, state="readonly", width=60)
+            combo.grid(column=0, row=fila, pady=2)
+            fila += 1
 
 
 '''ENCIMA LO QUE SE USA PARA TKINTER'''
