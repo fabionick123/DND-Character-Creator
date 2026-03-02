@@ -60,6 +60,16 @@ def set_proficiencias(): ##función que recoge las  proficiencias de cada clase.
     competencias.pop()
     print(competencias)
 
+def set_races():
+    global all_razas
+
+    razas = []
+    all_razas = requests.get(BASE_URL + "races").json()["results"]
+
+    for raza in all_razas:
+        razas.append(raza["name"])
+    print(razas)
+
 clase_combobox=Combobox(frm, values=opciones_clases, state="readonly")
 clase_combobox.current(0)
 clase_combobox.grid(column=0, row=3, padx=10, pady=20)
@@ -72,6 +82,7 @@ def set_clase(): ##funcion a la que llamar al pulsar el botón
     info_clase = requests.get(BASE_URL + "classes/" + clase.lower()).json()
     mostrar_competencias()
     set_proficiencias()
+    set_races()
 
 clase_verificar = ttk.Button(frm, text="Verificar Clase", command=set_clase)
 clase_verificar.grid(column=1, row=3)
