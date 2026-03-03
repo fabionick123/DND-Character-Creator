@@ -1,14 +1,14 @@
 import random as r
+
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Combobox
-
-from certifi import contents
 from playsound3 import playsound
 from PIL import Image, ImageTk
-
+import pygame
 import requests
 
+from tkinter.scrolledtext import ScrolledText
 """Funciones"""
 
 def set_nombre():
@@ -28,8 +28,8 @@ def get_races():
 def set_races():
     global raza
     raza = raza_combobox.get()
-    mostrar_stats()
     mostrar_info_raza()
+    mostrar_stats()
 
 def set_clase():
     global clase, info_clase
@@ -48,7 +48,7 @@ def set_caracteristicas_raza():
 
 
 def set_proficiencias():
-    global clase, competencias_armas
+    global clase, competencias_armas, tipos_stats
     competencias = []
     competencias_armas = requests.get(BASE_URL + "classes/" + clase.lower()).json()["proficiencies"]
     for competencia in competencias_armas:
@@ -59,30 +59,24 @@ def set_proficiencias():
     print(competencias)
 
 def mostrar_info_raza():
-    global tipos_stats, info_raza
+    global info_raza, tipos_stats
     for widget in contenedor_info_raza.winfo_children():
         widget.destroy()
+    for widget in contenedor_stats.winfo_children():
+        widget.destroy()
+
+    tipos_stats = []
+
     info_raza = requests.get(BASE_URL + "races/" + raza.lower()).json()
 
-    intelligence = ttk.Entry(contenedor_stats, width=5, state="readonly", justify="center")
-    intelligence.grid(column=0, row=1, padx=3)
+    columna = 0
+    for nombre in nombre_stats:
+        ttk.Label(contenedor_stats, text=nombre).grid(column=columna, row=0, padx=3)
 
-    strength = ttk.Entry(contenedor_stats, width=5, state="readonly", justify="center")
-    strength.grid(column=1, row=1, padx=3)
-
-    dexterity = ttk.Entry(contenedor_stats, width=5, state="readonly", justify="center")
-    dexterity.grid(column=2, row=1, padx=3)
-
-    wisdom = ttk.Entry(contenedor_stats, width=5, state="readonly", justify="center")
-    wisdom.grid(column=3, row=1, padx=3)
-
-    constitution = ttk.Entry(contenedor_stats, width=5, state="readonly", justify="center")
-    constitution.grid(column=4, row=1, padx=3)
-
-    charisma = ttk.Entry(contenedor_stats, width=5, state="readonly", justify="center")
-    charisma.grid(column=5, row=1, padx=3)
-
-    tipos_stats = [intelligence, strength, dexterity, wisdom, constitution, charisma]
+        entry = ttk.Entry(contenedor_stats, width=5, state="readonly", justify="center")
+        entry.grid(column=columna, row=1, padx=3)
+        tipos_stats.append(entry)
+        columna += 1
 
     ttk.Label(contenedor_info_raza, text="Speed: " + str(info_raza["speed"])).grid(column=0, row=0, pady=5, sticky="w")
     ttk.Label(contenedor_info_raza, text="Size: " + info_raza["size_description"], wraplength=400).grid(column=0, row=1, pady=5, sticky="w")
@@ -101,23 +95,31 @@ def mostrar_info_raza():
     set_caracteristicas_raza()
 
 def generate_stats():
-    global tipos_stats
+    global nombre_stats, prioridad_stats, clase, tipos_stats
     minimo_requerido = False
     stats = []
+    sum_stats = 0
     while not minimo_requerido:
+        stats = []
         sum_stats = 0
         for i in range(6):
             stat = r.randint(3, 18)
-            stats.append([tipos_stats_nombres[i], stat])
+            stats.append([nombre_stats[i], stat])
             sum_stats += stat
         if sum_stats >= 72:
             minimo_requerido = True
 
     stat_bonuses = get_stat_bonus()
     for stat in stat_bonuses:
-        posicion_stat = tipos_stats_nombres.index(stat[0])
+        posicion_stat = nombre_stats.index(stat[0])
         stats[posicion_stat][1] += stat[1]
 
+    max_stat = 0
+    for stat in stats:
+        if stat[1] > max_stat:
+            max_stat = stat[1]
+    if stats[nombre_stats.index(prioridad_stats[clase])][1] < max_stat:
+        stats[nombre_stats.index(prioridad_stats[clase])][1] = max_stat + 1
 
     for i in range(len(tipos_stats)):
         tipos_stats[i].config(state="normal")
@@ -126,6 +128,7 @@ def generate_stats():
         tipos_stats[i].config(state="readonly")
     print(f"Suma total conseguida: {sum_stats}")
 
+
 def get_stat_bonus():
     stats_bonuses = []
     stats_bonuses_json = requests.get(BASE_URL + "races/" + raza.lower()).json()["ability_bonuses"]
@@ -133,11 +136,9 @@ def get_stat_bonus():
         stats_bonuses.append((stat["ability_score"]["name"], stat["bonus"]))
     return stats_bonuses
 
-
 def mostrar_stats():
     btn_generate = ttk.Button(contenedor_stats, text="Generate", command=generate_stats)
     btn_generate.grid(column=6, row=1, padx=10)
-    generate_stats()
 
 def mostrar_competencias():
     for widget in contenedor_competencias.winfo_children():
@@ -207,7 +208,14 @@ def mostrar_equipamiento():
             combo.grid(column=0, row=fila, pady=2)
             fila += 1
 
-
+def mostrar_datos():
+    set_nombre()
+    print(nombre)
+    print(clase)
+    print(raza)
+    print(competencias_habilidades)
+    print(competencias_armas)
+    print(competencias_herramientas)
 
 root = Tk()
 root.title("DnD")
@@ -217,8 +225,11 @@ style = ttk.Style()
 style.theme_use("clam")  # mejor para personalizar
 
 
-musica = playsound("./musica.mp3", block=False)
-
+pygame.init()
+pygame.mixer.init()
+sound = pygame.mixer.Sound("musica.mp3")
+sound.set_volume(0.05)
+sound.play()
 
 main_container = Frame(root)
 main_container.pack(fill='both', expand=True)
@@ -237,7 +248,6 @@ fondo_id = canvas.create_image(0, 0, image=fondo_tk, anchor="nw")
 canvas.imagen_fondo = fondo_tk '''
 
 canvas_frame = canvas.create_window((0, 0), window=frm, anchor="nw")
-
 canvas.bind('<Configure>', lambda e: canvas.itemconfig(canvas_frame, width=e.width)) ##Hace que el canvas ocpe la pantalla entera entonces se centaran las cosas
 frm.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all"))) ##Hace que el frame ocupe el canvas entero jaja
 frm.columnconfigure(0, weight=1)
@@ -249,8 +259,24 @@ canvas.bind_all("<MouseWheel>", mover_rueda)
 
 BASE_URL = "https://www.dnd5eapi.co/api/2014/"
 
+prioridad_stats = {
+    "Barbarian":    "STR",
+    "Fighter":      "STR",
+    "Paladin":      "STR",
+    "Rogue":        "DEX",
+    "Wizard":       "INT",
+    "Cleric":       "WIS",
+    "Ranger":       "DEX",
+    "Sorcerer":     "CHA",
+    "Warlock":      "CHA",
+    "Monk":         "DEX",
+    "Druid":        "WIS",
+    "Bard":         "CHA"
+}
+nombre_stats = ["INT", "STR", "DEX", "WIS", "CON", "CHA"]
+tipos_stats = []
 
-nombre = None
+nombre = ""
 clase = ""
 raza = ""
 info_clase = {}
@@ -261,13 +287,11 @@ competencias_herramientas = []
 hit_die = None
 tiradas_de_salvacion = []
 equipamiento_de_comienzo = []
-tipos_stats = []
 
 ttk.Label(frm, text="Introduce nombre:").grid(column=0, row=0,columnspan=2)
 nombre_entry = ttk.Entry(frm, width=30)
 nombre_entry.insert(0, "name")
 nombre_entry.grid(column=0, row=1, columnspan=2, pady=5)
-
 
 opciones_clases =[] ##Usarlo en el campo de opciones de clase y poner un botón de confirmar al lado.
 opciones = requests.get(BASE_URL + "classes/").json()["results"]
@@ -302,7 +326,16 @@ contenedor_info_raza.grid(column=0, row=9,columnspan=2, padx=10, sticky="nsew")
 contenedor_stats = ttk.LabelFrame(frm, text="Stats", padding="10")
 contenedor_stats.grid(column=0, row=8, columnspan=2, pady=10)
 
-#tipos_stats = [intelligence, strength, dexterity, wisdom, constitution]
-tipos_stats_nombres = ["INT", "STR", "DEX", "WIS", "CON", "CHA"]
+contenedor_story = ttk.LabelFrame(frm, text="Tell your story:")
+contenedor_story.grid(column=0, row=10, columnspan=2, pady=(10, 0), sticky="nsew")
+
+backstory = ScrolledText(contenedor_story, width=60, height=10)
+backstory.pack(padx=10, pady=10)
+
+guardar = ttk.Button(frm, text="Guardar personaje", command=mostrar_datos)
+guardar.grid(column=0, row=11, columnspan=2, padx=5, sticky="w")
+# EXCEL
+root_characters = "character.csv"
+nombre_personaje = nombre_entry.get()
 
 root.mainloop()
