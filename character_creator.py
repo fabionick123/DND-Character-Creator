@@ -41,14 +41,8 @@ def set_clase():
     set_proficiencias()
     set_races()
 
-def set_caracteristicas_raza():
-    global info_raza
-
-
-
-
 def set_proficiencias():
-    global clase, competencias_armas, tipos_stats
+    global clase, competencias_armas, tipos_stats, info_tamano
     competencias = []
     competencias_armas = requests.get(BASE_URL + "classes/" + clase.lower()).json()["proficiencies"]
     for competencia in competencias_armas:
@@ -78,6 +72,16 @@ def mostrar_info_raza():
         tipos_stats.append(entry)
         columna += 1
 
+    info_tamano = info_raza["size_description"][0]
+    info_edad = info_raza["age"]
+    info_speed = info_raza["speed"]
+    info_alignment = info_raza["alignment"]
+    info_size_description = info_raza["size_description"]
+    info_lenguajes = [language["name"] for language in info_raza["languages"]]
+    info_lenguaje_desc = info_raza["language_desc"]
+    info_traits = [trait["name"] for trait in info_raza["traits"]]
+    print(info_traits)
+
     ttk.Label(contenedor_info_raza, text="Speed: " + str(info_raza["speed"])).grid(column=0, row=0, pady=5, sticky="w")
     ttk.Label(contenedor_info_raza, text="Size: " + info_raza["size_description"], wraplength=400).grid(column=0, row=1, pady=5, sticky="w")
     languages = [language["name"] for language in info_raza["languages"]]
@@ -90,10 +94,7 @@ def mostrar_info_raza():
     for i in range (len(info_caracteristicas)):
         info_caracteristica = requests.get(BASE_URL + "traits/" + info_caracteristicas[i]["index"]).json()
         ttk.Label(contenedor_info_raza, wraplength=500, text=f"{info_caracteristica['name']}: {info_caracteristica['desc']}").grid(column=0, row=4+i, pady=5, sticky="w")
-
     generate_stats()
-    set_caracteristicas_raza()
-
 def generate_stats():
     global nombre_stats, prioridad_stats, clase, tipos_stats
     minimo_requerido = False
@@ -287,7 +288,14 @@ competencias_herramientas = []
 hit_die = None
 tiradas_de_salvacion = []
 equipamiento_de_comienzo = []
-
+info_tamano = ""
+info_edad = ""
+info_speed = ""
+info_alignment = ""
+info_size_description = ""
+info_lenguajes = ""
+info_lenguaje_desc = ""
+info_traits = ""
 ttk.Label(frm, text="Introduce nombre:").grid(column=0, row=0,columnspan=2)
 nombre_entry = ttk.Entry(frm, width=30)
 nombre_entry.insert(0, "name")
