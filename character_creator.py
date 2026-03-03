@@ -60,13 +60,14 @@ def mostrar_info_raza():
 
     info_raza = requests.get(BASE_URL + "races/" + raza.lower()).json()
 
-    for i, nombre in enumerate(nombre_stats):
-        ttk.Label(contenedor_stats, text=nombre).grid(column=i, row=0, padx=3)
+    columna = 0
+    for nombre in nombre_stats:
+        ttk.Label(contenedor_stats, text=nombre).grid(column=columna, row=0, padx=3)
 
         entry = ttk.Entry(contenedor_stats, width=5, state="readonly", justify="center")
-        entry.grid(column=i, row=1, padx=3)
-
+        entry.grid(column=columna, row=1, padx=3)
         tipos_stats.append(entry)
+        columna += 1
 
     ttk.Label(contenedor_info_raza, text="Speed: " + str(info_raza["speed"])).grid(column=0, row=0, pady=5, sticky="w")
     ttk.Label(contenedor_info_raza, text="Size: " + info_raza["size_description"], wraplength=400).grid(column=0, row=1, pady=5, sticky="w")
