@@ -2,6 +2,8 @@ import random as r
 from tkinter import *
 from tkinter import ttk
 from tkinter.ttk import Combobox
+
+from certifi import contents
 from playsound3 import playsound
 from PIL import Image, ImageTk
 
@@ -38,6 +40,12 @@ def set_clase():
     mostrar_equipamiento()
     set_proficiencias()
     set_races()
+
+def set_caracteristicas_raza():
+    global info_raza
+
+
+
 
 def set_proficiencias():
     global clase, competencias_armas
@@ -90,6 +98,7 @@ def mostrar_info_raza():
         ttk.Label(contenedor_info_raza, wraplength=500, text=f"{info_caracteristica['name']}: {info_caracteristica['desc']}").grid(column=0, row=4+i, pady=5, sticky="w")
 
     generate_stats()
+    set_caracteristicas_raza()
 
 def generate_stats():
     global tipos_stats
